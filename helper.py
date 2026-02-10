@@ -152,6 +152,34 @@ def calculate_orbit_from_state_vector(r,v,mu,debug = True):
     orbit = Orbit(mag_h,i,RA,e,w,theta)
     return orbit
 
+def calculate_state_vector_from_orbit(orbit:Orbit , mu, debug = False):
+    r_perifocal = ((orbit.h**2/mu) * (1/(1+orbit.e*np.cos(np.radians(orbit.theta))))) * np.array([np.cos(np.radians(orbit.theta)), np.sin(np.radians(orbit.theta)), 0])
+
+    v_perifocal = (mu/orbit.h) * np.array([-np.sin(np.radians(orbit.theta)), orbit.e+np.cos(np.radians(orbit.theta)),0])
+
+    R3_RA = np.array([[np.cos(np.radians(orbit.RA)), np.sin(np.radians(orbit.RA)), 0] ,
+                      [-np.sin(np.radians(orbit.RA)), np.cos(np.radians(orbit.RA)), 0],
+                        [0,0,1]  ])
+    
+    R3_w = np.array([[np.cos(np.radians(orbit.w)), np.sin(np.radians(orbit.w)), 0] ,
+                      [-np.sin(np.radians(orbit.w)), np.cos(np.radians(orbit.w)), 0],
+                        [0,0,1]  ])
+
+    R1_i = np.array([[1,0,0],
+                     [0, np.cos(np.radians(orbit.i)), np.sin(np.radians(orbit.i))],
+                     [0, -np.sin(np.radians(orbit.i)), np.cos(np.radians(orbit.i))]])
+    
+    QX_p = R3_w @ R1_i @  R3_RA  # @ is matrix multiply, can also be done with .dot(). QX_p is transform matrix from geocentric to perifocal frame
+    
+    # Qp_X - transform matrix from perifocal to geocentric is QX_p.T (ie. transpose)
+
+    r_geo = QX_p.T @ r_perifocal
+    v_geo = QX_p.T @ v_perifocal
+    
+    print(f"{r_perifocal = }\n{v_perifocal = }\n{QX_p = }\n{r_geo = }\n{v_geo = }")
+
+    return r_geo, v_geo
+
 
 def orbit_eqn(h,e,theta,mu,debug = True):
     r = ((h**2)/mu) * (1/(1 + (e*np.cos(np.radians(theta)))))
