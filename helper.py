@@ -175,8 +175,8 @@ def calculate_state_vector_from_orbit(orbit:Orbit , mu, debug = False):
 
     r_geo = QX_p.T @ r_perifocal
     v_geo = QX_p.T @ v_perifocal
-    
-    print(f"{r_perifocal = }\n{v_perifocal = }\n{QX_p = }\n{r_geo = }\n{v_geo = }")
+    if debug:
+        print(f"{r_perifocal = }\n{v_perifocal = }\n{QX_p = }\n{r_geo = }\n{v_geo = }")
 
     return r_geo, v_geo
 
